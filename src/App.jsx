@@ -2,6 +2,10 @@ import { useState } from "react";
 
 import Navbar from "./components/Navbar";
 
+import { v4 as uuidv4 } from 'uuid';
+
+
+
 function App() {
 
   const [todo, setTodo] = useState("")
@@ -9,12 +13,16 @@ function App() {
   const handleEdit = () => {
 
   }
-  const handleDelete = () => {
-
-  }
+  const handleDelete = (e, id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this todo?");
+    if (confirmed) {
+      let newTodos = todos.filter(item => item.id !== id);
+      setTodos(newTodos);
+    }
+  };
 
   const handleAdd = () => {
-    setTodos([...todos, {todo, iscompleted: false}])
+    setTodos([...todos, {id:uuidv4(),todo, iscompleted: false}])
     setTodo("")
     console.log(todos)
     
@@ -22,6 +30,15 @@ function App() {
 
   const handleChange = (e) => {
     setTodo(e.target.value)
+  }
+  const handleCheckbox = (e) => {
+    let id = e.target.name;
+    let index = todos.findIndex(item=>{
+      return item.id === id
+    })
+    let newTodos = [...todos];
+    newTodos[index].iscompleted = !newTodos[index].iscompleted
+    setTodos(newTodos)
   }
 
   
@@ -37,14 +54,17 @@ function App() {
           </div>
           <h2 className="text-lg font-bold">Your Todos</h2>
           <div className="todos">
+            {todos.length===0 && <div className="m-5">No Todos</div>}
             {todos.map(item => {
 
-            return <div key={todo} className="todo flex w-1/2 my-3 justify-between">
-              <input type="checkbox" value={todo.iscompleted} name="" id="" />
+            return <div key={item.id} className="todo flex w-1/2 my-3 justify-between">
+              <div className="flex gap-5">
+              <input name={item.id} onChange={handleCheckbox} type="checkbox" value={item.iscompleted}  id="" />
               <div className={item.iscompleted?"line-through":""}>{item.todo}</div>
+              </div>
               <div className="buttons">
                 <button onClick={handleEdit} className="bg-violet-800 hover:bg-violet-950 p-2 font-bold text-sm py-1 text-white rounded-md mx-1">Edit</button>
-                <button onClick={handleDelete} className="bg-violet-800 hover:bg-violet-950 p-2 font-bold text-sm py-1 text-white rounded-md mx-1">Delete</button>
+                <button onClick={(e)=>{handleDelete(e, item.id)}} className="bg-violet-800 hover:bg-violet-950 p-2 font-bold text-sm py-1 text-white rounded-md mx-1">Delete</button>
               </div>
             </div>
             })}
